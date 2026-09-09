@@ -74,12 +74,12 @@ var platinumExp = parseInt(localStorage.getItem("platinumCoins"));
 var totalExp = (copperExp + silverExp + goldExp + platinumExp); // this variable is used in main.html to display EXP bar
 
 
-// .................... 07-Jun : Moved to index.html as the song was playing incorrectly ...............
-// Set the LEVEL to 1 if the player is new or to the previous value if played before
-//if (localStorage.getItem("playerLevel") === null) {
-//	localStorage.setItem("playerLevel", 1);
-//};
-//'.....................................................................................................
+// index.html normally sets this before main.html loads (see its comment about the song
+// picking the wrong track), but main.html can be opened on its own (bookmark, dev/test,
+// browser storage partitioning), so fall back here too rather than crash on a null level.
+if (localStorage.getItem("playerLevel") === null) {
+	localStorage.setItem("playerLevel", 1);
+};
 
 // Set the HP to be appropriate if the player is new or to the previous value if played before
 if (localStorage.getItem("totalHP") === null) {

@@ -34,8 +34,9 @@ function mathCheck() {
 	} ;
 
 	var userAnswer = parseFloat(document.answerChecker.answer.value);
-			
-	if (userAnswer === sum) {		
+	var isCorrect = (userAnswer === sum);
+
+	if (isCorrect) {
 	  // and
 		if (currentSymbol === "+") {
 			addCoins(5);
@@ -50,8 +51,8 @@ function mathCheck() {
 			addCoins(10);
             removeMobHP(10);
 		};
-		
-	} else if (userAnswer !== sum) {
+
+	} else {
 		// and
 		if (currentSymbol === "+") {
 			removeCoins(5);
@@ -66,6 +67,8 @@ function mathCheck() {
 			removeCoins(10);
 			removeHeroHP(10);
 		};
-	}; 
+	};
+
+	showFeedback(isCorrect, sum);
 
 }; //end mathCheck()
