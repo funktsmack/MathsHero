@@ -7,12 +7,38 @@
 
 // Make the form to enter the sum
 function formMaker() {
-	document.write("<form name='answerChecker' align='center'>");
+	document.write("<form name='answerChecker' align='center' onsubmit='return handleAnswerSubmit(event)'>");
 	firstBigCheck(); // switch numbers if first is smaller than second
 	document.write("<div class='sumtext'><b>" + ranNum1 + " " + currentSymbol + " " + ranNum2 + "</b> ?</div>");
 	document.write("<div><p><input type='text' name='answer' autocomplete='off' autofocus></p>");
-	document.write("<p><button name='submit' onclick='mathCheck()')>Check your answer</button></p></div>");
+	document.write("<p><button name='submit' type='submit'>Check your answer</button></p></div>");
 	document.write("</form>");
+	document.write("<div id='answerFeedback' class='answerFeedback'></div>");
+};
+
+// Runs when the answer form is submitted (button click or Enter key).
+// Stops the browser's default page navigation so we can show feedback first.
+function handleAnswerSubmit(event) {
+	event.preventDefault();
+	mathCheck();
+	return false;
+};
+
+// Show whether the answer was right or wrong, then reload for the next question
+function showFeedback(isCorrect, correctAnswer) {
+	var feedbackEl = document.getElementById('answerFeedback');
+	document.answerChecker.answer.disabled = true;
+	document.answerChecker.submit.disabled = true;
+
+	if (isCorrect) {
+		feedbackEl.className = 'answerFeedback correct';
+		feedbackEl.textContent = 'Correct! Nice hit!';
+	} else {
+		feedbackEl.className = 'answerFeedback incorrect';
+		feedbackEl.textContent = 'Not quite - the answer was ' + correctAnswer + '.';
+	};
+
+	setTimeout(function () { location.reload(); }, 1100);
 };
 
 // Sets the PLAYER LEVEL and level indicator on the screen for the player
@@ -218,23 +244,20 @@ function addCoins(amount) {
 
 // REMOVE coins if the player guesses wrong
 function removeCoins(amount) {
-	if (currentSymbol === "+" && localStorage.getItem("copperCoins") > 0) {
-		var coins = parseInt(localStorage.getItem("copperCoins"));
-		coins = (coins - amount);
-		localStorage.setItem("copperCoins", coins);
-	} else if (currentSymbol === "-" && localStorage.getItem("silverCoins") > 0) {
-		var coins = parseInt(localStorage.getItem("silverCoins"));
-		coins = (coins - amount);
-		localStorage.setItem("silverCoins", coins);		
-	} else if (currentSymbol === "x" && localStorage.getItem("goldCoins") > 0) {
-		var coins = parseInt(localStorage.getItem("goldCoins"));
-		coins = (coins - amount);
-		localStorage.setItem("goldCoins", coins);
-	} else {
-		var coins = parseInt(localStorage.getItem("platinumCoins"));
-		coins = (coins - amount);
-		localStorage.setItem("platinumCoins", coins);		
+	var currency;
+	if (currentSymbol === "+")  {
+		currency = "copperCoins";
+	} else if (currentSymbol === "-") {
+		currency = "silverCoins";
+	} else if (currentSymbol === "x") {
+		currency = "goldCoins";
+	} else { //currentSymbol === "/" Here for later use
+		currency = "platinumCoins";
 	};
+
+	var coins = parseInt(localStorage.getItem(currency));
+	coins = Math.max(0, coins - amount); // don't let coins go negative
+	localStorage.setItem(currency, coins);
 };
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -268,7 +291,18 @@ function resetTheGame() {
     for (var i = 0; i < coinTypes.length; i++) {
         localStorage.setItem(coinTypes[i]+"Coins", 0); // coins to 0 means EXP is set to 0 too
     };
-	localStorage.setItem("totalHP", gameLevelControl[(localStorage.getItem("playerLevel"))-1].heroStartingHP);
-	localStorage.setItem("mobCurrentHP", mobDetails[localStorage.getItem("theMobIndex")].mobHP);
+	localStorage.setItem("playerLevel", 1);
+	localStorage.setItem("totalHP", gameLevelControl[0].heroStartingHP);
+	localStorage.setItem("mobCurrentHP", 0); // 0 HP forces mobCaller() to pick a fresh mob
+};
+
+// Runs when the Reset form is submitted; confirms first since it wipes progress
+function handleResetSubmit(event) {
+	event.preventDefault();
+	if (confirm("Reset your progress? This clears your coins, EXP and HP.")) {
+		resetTheGame();
+		location.reload();
+	};
+	return false;
 };
 	

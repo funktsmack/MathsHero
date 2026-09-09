@@ -154,8 +154,8 @@ With thanks for stuff from:
 
 <div id='resetForm' style="position: absolute; left: 50px; top: 570px;">
 	<script>
-		document.write("<form name='resetForm'>");
-		document.write("<p><button name='reset' onclick='resetTheGame()')>Reset the Game</button></p>");
+		document.write("<form name='resetForm' onsubmit='return handleResetSubmit(event)'>");
+		document.write("<p><button name='reset' type='submit'>Reset the Game</button></p>");
 		document.write("</form>");
 	</script>
 </div>
